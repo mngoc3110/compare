@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đệ Quy vs. Lặp: Duyệt Cây Nhị Phân</title>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .code-box {
+            width: 45%;
+            min-width: 400px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin: 10px;
+        }
+        .code-box h2 {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            margin: 0;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .code-box.iterative h2 {
+            background-color: #dc3545; /* Màu đỏ cho Lặp (phức tạp hơn) */
+        }
+        pre {
+            background-color: #2d2d2d;
+            color: #f1f1f1;
+            padding: 15px;
+            text-align: left;
+            overflow-x: auto;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.95em;
+        }
+        .output {
+            padding: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Thuật Toán Nổi Bật Ưu Điểm Đệ Quy: Duyệt Cây Nhị Phân</h1>
+    <p>So sánh logic (Duyệt Giữa - In-Order) giữa Đệ quy và Lặp. Phương pháp lặp bắt buộc phải quản lý Stack thủ công.</p>
+    
+    <button onclick="runDemo()">Chạy Mô Phỏng</button>
+
+    <div class="container">
+        
+        <div class="code-box">
+            <h2>Đệ Quy (Recursive) - Thanh lịch</h2>
+            <pre>
+<code>
+function inorderRecursive(node, result = []) {
+    // 1. Kiểm tra Base Case
+    if (node === null) {
+        return result;
+    }
+
+    // 2. Duyệt cây con TRÁI
+    inorderRecursive(node.left, result);
+
+    // 3. Xử lý GỐC
+    result.push(node.value);
+
+    // 4. Duyệt cây con PHẢI
+    inorderRecursive(node.right, result);
+
+    return result;
+}
+</code>
+            </pre>
+            <div class="output" id="output-recursive">Kết quả: [Chưa chạy]</div>
+        </div>
+
+        <div class="code-box iterative">
+            <h2>Lặp (Iterative) - Phức tạp</h2>
+            <pre>
+<code>
+function inorderIterative(root) {
+    let stack = [];
+    let result = [];
+    let current = root;
+
+    // Phải quản lý stack và con trỏ 'current'
+    while (current !== null || stack.length > 0) {
+        
+        // 1. Đi hết về bên trái
+        while (current !== null) {
+            stack.push(current);
+            current = current.left;
+        }
+
+        // 2. Hết bên trái, lấy từ stack (nút GỐC)
+        current = stack.pop();
+        result.push(current.value);
+
+        // 3. Chuyển sang bên PHẢI
+        current = current.right;
+    }
+    return result;
+}
+</code>
+            </pre>
+            <div class="output" id="output-iterative">Kết quả: [Chưa chạy]</div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. ĐỊNH NGHĨA CẤU TRÚC DỮ LIỆU CÂY ---
+        class Node {
+            constructor(value, left = null, right = null) {
+                this.value = value;
+                this.left = left;
+                this.right = right;
+            }
+        }
+
+        // --- 2. TẠO CÂY DỮ LIỆU MẪU ---
+        //      10
+        //     /  \
+        //    5    15
+        //   / \    \
+        //  3   7    20
+        const root = new Node(10,
+            new Node(5, new Node(3), new Node(7)),
+            new Node(15, null, new Node(20))
+        );
+
+        // --- 3. LOGIC CÁC THUẬT TOÁN (ĐỂ CHẠY) ---
+
+        // Hàm Đệ Quy
+        function inorderRecursive(node, result = []) {
+            if (node === null) return result;
+            inorderRecursive(node.left, result);
+            result.push(node.value);
+            inorderRecursive(node.right, result);
+            return result;
+        }
+
+        // Hàm Lặp (với Stack thủ công)
+        function inorderIterative(root) {
+            let stack = [];
+            let result = [];
+            let current = root;
+
+            while (current !== null || stack.length > 0) {
+                while (current !== null) {
+                    stack.push(current);
+                    current = current.left;
+                }
+                current = stack.pop();
+                result.push(current.value);
+                current = current.right;
+            }
+            return result;
+        }
+
+        // --- 4. HÀM KÍCH HOẠT MÔ PHỎNG ---
+        function runDemo() {
+            // Chạy Đệ Quy
+            const t0_recur = performance.now();
+            const resultRecursive = inorderRecursive(root);
+            const t1_recur = performance.now();
+            const timeRecursive = (t1_recur - t0_recur).toFixed(5);
+            
+            document.getElementById('output-recursive').innerText = 
+                `Kết quả: [${resultRecursive.join(', ')}] \nThời gian: ${timeRecursive} ms`;
+
+            // Chạy Lặp
+            const t0_iter = performance.now();
+            const resultIterative = inorderIterative(root);
+            const t1_iter = performance.now();
+            const timeIterative = (t1_iter - t0_iter).toFixed(5);
+
+            document.getElementById('output-iterative').innerText = 
+                `Kết quả: [${resultIterative.join(', ')}] \nThời gian: ${timeIterative} ms`;
+        }
+    </script>
+
+</body>
+</html>
